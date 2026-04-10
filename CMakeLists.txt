@@ -1,8 +1,16 @@
 cmake_minimum_required(VERSION 4.2)
 project(avx LANGUAGES CXX)
 
+include(CheckCXXCompilerFlag)
+
 set(CMAK_CXX_STANDARD 17)
 set(CMAK_CXX_STANDARD_REQUIRED ON)
+
+# avx512
+CHECK_CXX_COMPILER_FLAG("-mavx512f" AVX512_BUILD)
+if(NOT AVX512_BUILD)
+    message(FATAL_ERROR "avx512 support not found!")
+endif()
 
 set(CMAKE_CXX_FLAGS "-mavx512f -O0")
 include_directories(include)

@@ -23,9 +23,10 @@ struct Perf {
 class DotOp {
 public:
   DotOp(size_t m) : M(m) { initRandom(); }
+  DotOp(size_t m, unsigned i) : M(m), iter(i) { initRandom(); }
+
   void baseline();
   void vectorized();
-void vectorized_1();
 
   pair<float, float> getResult();
   void printResult();
@@ -33,14 +34,13 @@ void vectorized_1();
 
 private:
   size_t M;
+  unsigned iter = 10;
   vector<float> A, B;
   float base_res = 0.0;
   float vec_res = 0.0;
-  // populate A, B with random data
-  void initRandom();
-  Perf performance;
+  void initRandom(); // populate A, B with random data
 
-  // TODO: add iterations to performance collection
+  Perf performance;
 };
 
 #endif
