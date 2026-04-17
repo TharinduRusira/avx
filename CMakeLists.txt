@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.30)
 project(avx LANGUAGES CXX)
 
+find_package(GTest REQUIRED)
+
 include(CheckCXXCompilerFlag)
 
 set(CMAK_CXX_STANDARD 17)
@@ -20,3 +22,17 @@ target_include_directories(dotop PUBLIC $(PROJECT_SOURCE_DIR)/include)
 
 add_executable(runner runner.cpp)
 target_link_libraries(runner PRIVATE dotop)
+
+# Tests
+add_executable(utests 
+    tests/test_main.cpp
+    tests/test_dotop.cpp
+    )
+target_link_libraries(utests 
+GTest::gtest
+GTest::gtest_main
+dotop
+)
+
+include(GoogleTest)
+gtest_discover_tests(utests)
