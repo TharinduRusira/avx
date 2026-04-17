@@ -3,15 +3,25 @@ project(avx LANGUAGES CXX)
 
 find_package(GTest REQUIRED)
 
-include(CheckCXXCompilerFlag)
+include(CheckCXXSourceCompiles)
 
 set(CMAK_CXX_STANDARD 17)
 set(CMAK_CXX_STANDARD_REQUIRED ON)
 
 # avx512
-CHECK_CXX_COMPILER_FLAG("-mavx512f" AVX512_BUILD)
+set(AVX512CODE "
+#include <immintrin.h>
+int main() {
+    __m512 a = _mm512_set1_ps(1.0f);
+    return 0;
+}
+")
+CHECK_CXX_SOURCE_COMPILES("${AVX512CODE}" AVX512BUILD)
+
 if(NOT AVX512_BUILD)
     message(FATAL_ERROR "avx512 support not found!")
+else()
+    message(STATUS "avx512 detected...")
 endif()
 
 set(CMAKE_CXX_FLAGS "-mavx512f -O0")
