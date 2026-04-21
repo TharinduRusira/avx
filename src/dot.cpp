@@ -4,6 +4,7 @@
 ///
 
 #include "dot.hpp"
+#include "clock.hpp"
 #include "ukernels.h"
 
 void DotOp::initRandom() {
@@ -31,20 +32,25 @@ void DotOp::printPerformance() {
 }
 void DotOp::printResult() {
   cout << "[Result]\tBaseline: " << scientific << setprecision(4) << base_res
-       << "\tVectorized: " << scientific << setprecision(4) << vec_res << "\tDelta: " << fixed
-       << setprecision(3) << fabs(base_res - vec_res) << endl;
+       << "\tVectorized: " << scientific << setprecision(4) << vec_res
+       << "\tDelta: " << fixed << setprecision(3) << fabs(base_res - vec_res)
+       << endl;
 }
 
 void DotOp::baseline() {
   double total_t = 0;
   float res;
+  Clock clk;
+
   for (size_t it = 0; it < iter; it++) {
     res = 0.0;
-    auto s = chrono::high_resolution_clock::now();
+    clk.start();
+
     for (size_t i = 0; i < M; i++)
       res += A[i] * B[i];
-    auto e = chrono::high_resolution_clock::now();
-    total_t += chrono::duration<double>(e - s).count();
+
+    clk.end();
+    total_t += clk.duration();
   }
   base_res = res;                             // result of the last iteration
   performance.base_duration = total_t / iter; // average time
@@ -56,12 +62,15 @@ void DotOp::vectorized() {
 
   double total_t = 0;
   float res;
+  Clock clk;
   for (size_t it = 0; it < iter; it++) {
     res = 0.0;
-    auto s = chrono::high_resolution_clock::now();
+    clk.start();
+
     _avx512_dot_vec_acc_single_reduce(a_ptr, b_ptr, res, M);
-    auto e = chrono::high_resolution_clock::now();
-    total_t += chrono::duration<double>(e - s).count();
+
+    clk.end();
+    total_t += clk.duration();
   }
   vec_res = res;
   performance.vector_duration = total_t / iter;
