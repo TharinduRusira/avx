@@ -3,6 +3,9 @@
 //    Tharindu Patabandi <tharindu at protonmail dot com>
 ///
 
+#ifndef _CLOCK_HPP
+#define _CLOCK_HPP
+
 #include <cassert>
 #include <chrono>
 #include <iostream>
@@ -14,9 +17,9 @@ private:
 
 public:
   Clock() { _stopped = false; }
-  void start();
-  void end();
-  double duration();
+  inline void start();
+  inline void end();
+  inline double duration();
 };
 
 void Clock::start() {
@@ -32,3 +35,5 @@ double Clock::duration() {
   assert(_stopped && "[ERROR] clock is still ticking...");
   return std::chrono::duration<double>(end_t - start_t).count();
 }
+
+#endif
