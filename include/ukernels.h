@@ -34,4 +34,48 @@ void _avx512_dot_vec_acc_single_reduce(const float *a_ptr, const float *b_ptr,
   res = _mm512_reduce_add_ps(c_vec);
 }
 
+void _avx512_dot_vec_acc_single_reduce_unroll_2(const float *a_ptr,
+                                                const float *b_ptr, float &res,
+                                                size_t M) {
+  __m512 c_vec_0 = _mm512_setzero_ps();
+  __m512 c_vec_1 = _mm512_setzero_ps();
+
+  for (size_t i = 0; i < M; i += 16 * 2) {
+    __m512 a_vec_0 = _mm512_loadu_ps(a_ptr + i + 0);
+    __m512 b_vec_0 = _mm512_loadu_ps(b_ptr + i + 0);
+
+    __m512 a_vec_1 = _mm512_loadu_ps(a_ptr + i + 16);
+    __m512 b_vec_1 = _mm512_loadu_ps(b_ptr + i + 16);
+
+    c_vec_0 = _mm512_fmadd_ps(a_vec_0, b_vec_0, c_vec_0);
+    c_vec_1 = _mm512_fmadd_ps(a_vec_1, b_vec_1, c_vec_1);
+  }
+  res += _mm512_reduce_add_ps(c_vec_0);
+  res += _mm512_reduce_add_ps(c_vec_1);
+}
+
+void _avx512_dot_vec_acc_single_reduce_unroll_4(const float *a_ptr,
+                                                const float *b_ptr, float &res,
+                                                size_t M) {
+  __m512 c_vec = _mm512_setzero_ps();
+  for (size_t i = 0; i < M; i += 16 * 4) {
+    __m512 a_vec_0 = _mm512_loadu_ps(a_ptr + i + 0);
+    __m512 b_vec_0 = _mm512_loadu_ps(b_ptr + i + 0);
+
+    __m512 a_vec_1 = _mm512_loadu_ps(a_ptr + i + 16);
+    __m512 b_vec_1 = _mm512_loadu_ps(b_ptr + i + 16);
+
+    __m512 a_vec_2 = _mm512_loadu_ps(a_ptr + i + 32);
+    __m512 b_vec_2 = _mm512_loadu_ps(b_ptr + i + 32);
+
+    __m512 a_vec_3 = _mm512_loadu_ps(a_ptr + i + 48);
+    __m512 b_vec_3 = _mm512_loadu_ps(b_ptr + i + 48);
+
+    c_vec = _mm512_fmadd_ps(a_vec_0, b_vec_0, c_vec);
+    c_vec = _mm512_fmadd_ps(a_vec_1, b_vec_1, c_vec);
+    c_vec = _mm512_fmadd_ps(a_vec_2, b_vec_2, c_vec);
+    c_vec = _mm512_fmadd_ps(a_vec_3, b_vec_3, c_vec);
+  }
+  res = _mm512_reduce_add_ps(c_vec);
+}
 #endif
