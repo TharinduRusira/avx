@@ -38,6 +38,7 @@ add_executable(utests
     tests/test_main.cpp
     tests/test_dotop.cpp
     tests/test_clock.cpp
+    tests/test_utils.cpp
     )
 
 target_link_libraries(utests 
