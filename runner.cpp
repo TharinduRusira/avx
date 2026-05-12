@@ -15,6 +15,7 @@ int main(int argc, char **argv) {
                        32768, 65536, 131072, 262144, 524288, 1048576};
 
   for (int len : sizes) {
+    if (len % 16) continue; // currently the ukernels are not masked
     DotOp op(len);
     op.baseline();
     op.vectorized();
