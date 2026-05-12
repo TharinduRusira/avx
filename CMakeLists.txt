@@ -1,9 +1,17 @@
 cmake_minimum_required(VERSION 3.30)
 project(avx LANGUAGES CXX)
 
+# verify Linux
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    message(STATUS "Linux detected...")
+else()
+    message(FATAL_ERROR "This tool requires Linux environment. Exiting...")
+endif()
+
 find_package(GTest REQUIRED)
 
 include(CheckCXXSourceCompiles)
+include(CheckCXXCompilerFlag)
 
 set(CMAK_CXX_STANDARD 17)
 set(CMAK_CXX_STANDARD_REQUIRED ON)
@@ -22,9 +30,27 @@ if(NOT AVX512_BUILD)
     message(FATAL_ERROR "avx512 support not found!")
 else()
     message(STATUS "avx512 detected...")
+    set(CMAKE_CXX_FLAGS "-mavx512f -O0")
 endif()
 
-set(CMAKE_CXX_FLAGS "-mavx512f -O0")
+# check f16c compiler support
+CHECK_CXX_COMPILER_FLAG("-mf16c" COMPILER_SUPPORTS_F16C)
+# check f16c cpu support
+execute_process(
+    COMMAND cat /proc/cpuinfo
+    COMMAND grep -o "f16c"
+    OUTPUT_VARIABLE CPU_SUPPORTS_F16C
+    )
+string(FIND "${CPU_SUPPORTS_F16C}" "f16c" CPU_HAS_F16C)
+
+if (COMPILER_SUPPORTS_F16C AND CPU_HAS_F16C GREATER -1)
+    message(STATUS "f16c support detected...")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mf16c")
+else()
+    message(STATUS "Building without f16c...")
+endif()
+
+
 include_directories(include)
 add_library(dotop src/dot.cpp)
 
